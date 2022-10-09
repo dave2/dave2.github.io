@@ -1,0 +1,4 @@
+baseURL = 'https://dave2.github.io/'
+languageCode = 'en-us'
+title = 'Loosely Coherent Ramblings'
+theme = 'PaperMod'
