@@ -1,7 +1,7 @@
 ---
 title: "Wat Another Blog Again"
 date: 2022-10-10T12:55:42+13:00
-draft: true
+draft: false
 ---
 
 ## What happened this time?
