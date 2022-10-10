@@ -2,3 +2,11 @@ baseURL = 'https://dave2.github.io/'
 languageCode = 'en-us'
 title = 'Loosely Coherent Ramblings'
 theme = 'PaperMod'
+
+[params.homeInfoParams]
+Title = "Oh no another blog by dave2"
+Content = "This is yet another blog by dave2. Views here expressed as my own and not those of anyone else or any organisation foolish enough to associate with me."
+[[params.socialIcons]]
+name = "twitter"
+url = "https://twitter.com/rwmTinkyWinky"
+
