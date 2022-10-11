@@ -63,3 +63,7 @@ a way to generate names for lots of other things.
 
 At some point I'll publish the GDscript code under the same license
 as the original if anyone wants it. I wouldn't trust it though!
+
+[^1]: Some readers will be aware that in the past my view of "simple"
+has included just ignoring huge sections of RFCs because they are
+not "really" needed. That's how simple I sometimes reach.
