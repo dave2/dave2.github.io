@@ -10,8 +10,8 @@ make these work.
 
 The first part of this however is just making roads appear in the
 game world. The generation of roads is a bit pointless if I can't
-see them. Also, needed to do the extensive debugging on road generation
-I'll also need to see them.
+see them. Also, I expect I'll need to do extensive debugging on road generation
+and so I'll also need to see them.
 
 The tileset I'm using[^1] has roads as separate models to be added to
 the base tiles. The models cover all possible exit positions and
