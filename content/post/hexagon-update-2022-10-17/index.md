@@ -2,6 +2,7 @@
 title: "Hexagon Update: Roads"
 date: 2022-10-17T11:38:22+13:00
 draft: false
+math: true
 ---
 
 As I mentioned in [some previous update]({{< ref "/post/hexagon-update-2022-10-12">}})
@@ -126,7 +127,7 @@ The magic numbers are just the hexadecimal value of each bit being set
 (and only that bit).
 
 When stashing the road tile, we then use the mask for the key in the
-`Dictionary`, which will be a trivial lookup. (Aside: nearly O(1) if you
+`Dictionary`, which will be a trivial lookup. (Aside: nearly $O(1)$ if you
 really want to know.)
 
 I said above that rotation is easy as well. If we've got an array of
