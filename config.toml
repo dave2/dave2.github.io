@@ -16,6 +16,9 @@ Content = "This is yet another blog by dave2. Views here expressed as my own and
 [[params.socialIcons]]
 name = "twitter"
 url = "https://twitter.com/rwmTinkyWinky"
+[[params.socialIcons]]
+name = "rss"
+url = "https://dave2.github.io/index.xml"
 
 [[menu.main]]
 identifier = "tags"
