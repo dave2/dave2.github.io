@@ -2,6 +2,7 @@
 title: "Hexagon Update: Oh no"
 date: 2022-10-21T15:14:39+13:00
 draft: false
+tags: ["hexagon_game"]
 ---
 
 ![This is fine](this-is-fine.jpg)

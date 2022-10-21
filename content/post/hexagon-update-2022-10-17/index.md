@@ -3,6 +3,7 @@ title: "Hexagon Update: Roads"
 date: 2022-10-17T11:38:22+13:00
 draft: false
 math: true
+tags: ["hexagon_game"]
 ---
 
 As I mentioned in [some previous update]({{< ref "/post/hexagon-update-2022-10-12">}})

@@ -2,6 +2,7 @@
 title: "Hexagon Game Update: The Past"
 date: 2022-10-13T12:29:46+13:00
 draft: false
+tags: ["hexagon_game"]
 ---
 
 I realised that since I started writing this silly wee game I actually

@@ -3,6 +3,13 @@ languageCode = 'en-us'
 title = 'Loosely Coherent Ramblings'
 theme = 'PaperMod'
 
+[params]
+env = "production"
+ShowShareButtons = true
+ShowPostNavLinks = true
+ShowBreadCrumbs = true
+ShowRssButtonInSectionTermList = true
+
 [params.homeInfoParams]
 Title = "Oh no another blog by dave2"
 Content = "This is yet another blog by dave2. Views here expressed as my own and not those of anyone else or any organisation foolish enough to associate with me."
@@ -10,3 +17,11 @@ Content = "This is yet another blog by dave2. Views here expressed as my own and
 name = "twitter"
 url = "https://twitter.com/rwmTinkyWinky"
 
+[[menu.main]]
+identifier = "tags"
+name = "Tags"
+url = "/tags/"
+weight = 10
+
+[outputs]
+home = [ "HTML", "RSS", "JSON" ]

@@ -2,6 +2,7 @@
 title: "Hexagon Update: Roads .. again"
 date: 2022-10-18T15:47:47+13:00
 draft: false
+tags: ["hexagon_game"]
 ---
 
 Well, it wouldn't be my code development if any design pattern lasted

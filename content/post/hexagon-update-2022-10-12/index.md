@@ -2,6 +2,7 @@
 title: "Hexagon Game: Update for 12 October 2022"
 date: 2022-10-12T11:47:55+13:00
 draft: false
+tags: ["hexagon_game"]
 ---
 
 Well there's been a little bit more progress on world generation. I've
