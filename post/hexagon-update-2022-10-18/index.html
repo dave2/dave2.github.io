@@ -10,7 +10,7 @@ set of dictionaries.</p><p>But, before tackling changing everything again, I did
 place about how to draw roads on the map. Not the display part now,
 the actual &ldquo;draw road from A to B&rdquo; including all the steps needed
 to join them.</p><p>Pathfinding is a well trodden area in game design. There&rsquo;s a bunch of
-methods, but the <a href=https://en.wikipedia.org/wiki/A*_search_algorithm>A* algorithm</a> fits my needs pretty well. This involves
+methods, but the <a href=https://en.wikipedia.org/wiki/A*_search_algorithm rel=noopener target=_blank>A* algorithm</a> fits my needs pretty well. This involves
 building a graph of nodes connected by edges, and assigning weights or
 costs or whatever you want to call it to traversing the node or edge.</p><p>I was thinking I might have to build A* myself in GDscript but what&rsquo;s
 this? Oh, Godot already includes A* classes to do all the work for me.
@@ -24,7 +24,7 @@ the two points.</p><p>We have to overide those as we want our costs based on axi
 distances, not cartesian coordinates for the tiles themselves. And
 the <code>AStar2D</code> wants nodes with cartesian coordinates (specifically, it
 expects <code>Vector2</code> coordinates). I should point out, this is noted in
-the Red Blog Games Hexagon Guide about <a href=https://www.redblobgames.com/grids/hexagons/#pathfinding>Pathfinding</a>,
+the Red Blog Games Hexagon Guide about <a href=https://www.redblobgames.com/grids/hexagons/#pathfinding rel=noopener target=_blank>Pathfinding</a>,
 and is not something I&rsquo;ve pulled out of skill or knowledge myself!</p><p>As we have a grid of tiles (albeit a hexagon grid), we&rsquo;ll just throw
 a graph containing a node for every tile, and connections from each
 node to all neighbours that meet appropriate criteria (mostly, can put

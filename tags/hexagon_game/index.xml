@@ -1,7 +1,470 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>hexagon_game on Loosely Coherent Ramblings</title><link>https://dave2.github.io/tags/hexagon_game/</link><description>Recent content in hexagon_game on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 21 Oct 2022 15:14:39 +1300</lastBuildDate><atom:link href="https://dave2.github.io/tags/hexagon_game/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: Oh no</title><link>https://dave2.github.io/post/hexagon-update-2022-10-21/</link><pubDate>Fri, 21 Oct 2022 15:14:39 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-21/</guid><description>So I am now deep in the refactor well, and I&amp;rsquo;m pretty sure I can eventually get myself out, but right now everything is broken until I get to the bottom of the well, and start digging my way up.
-What triggered this was supporting roads. In the picture I posted on the last update there was a lovely road going through the gap in the forest. But there wasn&amp;rsquo;t a gap there really.</description></item><item><title>Hexagon Update: Roads .. again</title><link>https://dave2.github.io/post/hexagon-update-2022-10-18/</link><pubDate>Tue, 18 Oct 2022 15:47:47 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-18/</guid><description>Well, it wouldn&amp;rsquo;t be my code development if any design pattern lasted longer than four hours! In fact, in the previous post it omits the details this was actually the second pass, where we stored masks in the tile data directly, rather than in a different set of dictionaries.
-But, before tackling changing everything again, I did get to a better place about how to draw roads on the map. Not the display part now, the actual &amp;ldquo;draw road from A to B&amp;rdquo; including all the steps needed to join them.</description></item><item><title>Hexagon Update: Roads</title><link>https://dave2.github.io/post/hexagon-update-2022-10-17/</link><pubDate>Mon, 17 Oct 2022 11:38:22 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-17/</guid><description>As I mentioned in some previous update I have been avoiding roads, although I have some theories on how to make these work.
-The first part of this however is just making roads appear in the game world. The generation of roads is a bit pointless if I can&amp;rsquo;t see them. Also, I expect I&amp;rsquo;ll need to do extensive debugging on road generation and so I&amp;rsquo;ll also need to see them.</description></item><item><title>Hexagon Game Update: The Past</title><link>https://dave2.github.io/post/hexagon-update-2022-10-13/</link><pubDate>Thu, 13 Oct 2022 12:29:46 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-13/</guid><description>I realised that since I started writing this silly wee game I actually haven&amp;rsquo;t written down any of the initial thoughts about how this was goign to work, and since I&amp;rsquo;ve only just resurrected writing a blog after I&amp;rsquo;d already started writing the game there&amp;rsquo;s no history here either.
-Right, let&amp;rsquo;s see about writing some of those thoughts down.
-Hexagon tiles I&amp;rsquo;m implementing a classical RPG and hexagon tiles are pretty common for maps in that context.</description></item><item><title>Hexagon Game: Update for 12 October 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-10-12/</link><pubDate>Wed, 12 Oct 2022 11:47:55 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-12/</guid><description>Well there&amp;rsquo;s been a little bit more progress on world generation. I&amp;rsquo;ve been avoiding working on roads (I have a theory) and rivers (lol no ideas), and doing &amp;ldquo;city&amp;rdquo; generation.
-Placing the cities is easy enough. The world is divided into biomes, and we assign one city to each biome, checking to make sure when we place it there are no other cities too close. We also check against a reserved starting area.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>hexagon_game on Loosely Coherent Ramblings</title><link>https://dave2.github.io/tags/hexagon_game/</link><description>Recent content in hexagon_game on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 21 Oct 2022 15:14:39 +1300</lastBuildDate><atom:link href="https://dave2.github.io/tags/hexagon_game/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: Oh no</title><link>https://dave2.github.io/post/hexagon-update-2022-10-21/</link><pubDate>Fri, 21 Oct 2022 15:14:39 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-21/</guid><description>&lt;p>&lt;img loading="lazy" src="this-is-fine.jpg" alt="This is fine" />
+&lt;/p>
+&lt;p>So I am now deep in the refactor well, and I&amp;rsquo;m pretty sure I can
+eventually get myself out, but right now everything is broken
+until I get to the bottom of the well, and start digging my way
+up.&lt;/p>
+&lt;p>What triggered this was supporting roads. In the picture I posted
+on &lt;a href="https://dave2.github.io/post/hexagon-update-2022-10-18/" >the last update&lt;/a> there
+was a lovely road going through the gap in the forest. But there
+wasn&amp;rsquo;t a gap there really.&lt;/p>
+&lt;p>The road pieces can be spawned on top of any tile, and that&amp;rsquo;s how
+it looks like it could be used, but then you can&amp;rsquo;t really use them
+on any tile which has other things on it. That is, it works on
+the plain flat tiles, but not say a forest tile. On a forest tile,
+you get a look of a road which has trees all over it.&lt;/p>
+&lt;p>To work around that did a quick hack to just force the tile to one
+of the plain flat ones when a road gets created on a tile that isn&amp;rsquo;t
+so well designed for roads. Thus, the picture of the road going
+through the gap in forest is really the road mowing down all the
+forest tiles in its way on the shortest bit of forest to cross.&lt;/p>
+&lt;p>I didn&amp;rsquo;t really like that, a road piece that neatly weaved through
+a forest closely would be nicer. And nicer becomes &amp;ldquo;let&amp;rsquo;s refactor
+the entire world&amp;rdquo;.&lt;/p>
+&lt;p>The upside is the tiles will look better when done, and at the same
+time I have half an idea of how to manage water traversal as well.
+It&amp;rsquo;ll involve less objects in the world as well.&lt;/p>
+&lt;p>I have progressively integrated the road pieces, in some cases
+recolouring them, into the base tiles and adjusted the decorations
+on those tiles to allow the road piece to fit in, and then collected
+it all into a new tile - original base tile plus road piece - so
+they can be spawned at once.&lt;/p>
+&lt;p>This is mostly some work in Blender, since the tiles are all easily
+messed with in Blender. Using Blender falls into that slightly annoying
+tool space where &lt;a href="https://www.kicad.org/" rel="noopener" target="_blank">KiCAD&lt;/a> lives in my head as well.
+It&amp;rsquo;s one of those tools where knowing the keyboard actions &lt;em>really&lt;/em> matters
+and without that you will struggle to do anything quickly at all.&lt;/p>
+&lt;p>Anyway, that bit is done, I have many more tiles than I had before,
+and the ugly code and metadata reorganisation has begun.&lt;/p>
+&lt;p>I&amp;rsquo;ll surface in a few days to report why I shouldn&amp;rsquo;t have done this.&lt;/p></description></item><item><title>Hexagon Update: Roads .. again</title><link>https://dave2.github.io/post/hexagon-update-2022-10-18/</link><pubDate>Tue, 18 Oct 2022 15:47:47 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-18/</guid><description>&lt;p>Well, it wouldn&amp;rsquo;t be my code development if any design pattern lasted
+longer than four hours! In fact, in the &lt;a href="https://dave2.github.io/post/hexagon-update-2022-10-17/" >previous post&lt;/a>
+it omits the details this was actually the second pass, where we
+stored masks in the tile data directly, rather than in a different
+set of dictionaries.&lt;/p>
+&lt;p>But, before tackling changing everything again, I did get to a better
+place about how to draw roads on the map. Not the display part now,
+the actual &amp;ldquo;draw road from A to B&amp;rdquo; including all the steps needed
+to join them.&lt;/p>
+&lt;p>Pathfinding is a well trodden area in game design. There&amp;rsquo;s a bunch of
+methods, but the &lt;a href="https://en.wikipedia.org/wiki/A*_search_algorithm" rel="noopener" target="_blank">A* algorithm&lt;/a> fits my needs pretty well. This involves
+building a graph of nodes connected by edges, and assigning weights or
+costs or whatever you want to call it to traversing the node or edge.&lt;/p>
+&lt;p>I was thinking I might have to build A* myself in GDscript but what&amp;rsquo;s
+this? Oh, Godot already includes A* classes to do all the work for me.
+Well, most of the work anyway, the traversal bit anyway. In Godot 4
+we actually get three different versions of A*, mostly separated by
+the node elements.&lt;/p>
+&lt;p>Because we&amp;rsquo;re doing pathfinding on a 2D plane&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> we&amp;rsquo;ll use the &lt;code>AStar2D&lt;/code>
+class for our pathfinding. This provides two virtual methods we will
+need to replace, &lt;code>_compute_cost()&lt;/code> and &lt;code>_estimate_cost()&lt;/code> which given
+two points returns the exact or lower-bound cost of the path between
+the two points.&lt;/p>
+&lt;p>We have to overide those as we want our costs based on axial coordinate
+distances, not cartesian coordinates for the tiles themselves. And
+the &lt;code>AStar2D&lt;/code> wants nodes with cartesian coordinates (specifically, it
+expects &lt;code>Vector2&lt;/code> coordinates). I should point out, this is noted in
+the Red Blog Games Hexagon Guide about &lt;a href="https://www.redblobgames.com/grids/hexagons/#pathfinding" rel="noopener" target="_blank">Pathfinding&lt;/a>,
+and is not something I&amp;rsquo;ve pulled out of skill or knowledge myself!&lt;/p>
+&lt;p>As we have a grid of tiles (albeit a hexagon grid), we&amp;rsquo;ll just throw
+a graph containing a node for every tile, and connections from each
+node to all neighbours that meet appropriate criteria (mostly, can put
+a road on it!)&lt;/p>
+&lt;p>At this point, the current implementation and the one I want to move
+to changes a bit. I&amp;rsquo;ve added costs to the metadata about tile types,
+as we&amp;rsquo;re applying something simple as a policy: tiles like grass
+are easy to move on, tiles like forests and mountains are harder but
+not impossible, and water should be impossible .. for now.&lt;/p>
+&lt;p>I am making forests and mountains hard but not impossible to produce
+roads that tend to avoid these obstacles rather than plow through them,
+but will plow through them when there&amp;rsquo;s little choice but to make a
+very large detour around them. I think this will produce a pleasing
+balance between direct straight line roads and roads which have nice
+natural curves and meandering.&lt;/p>
+&lt;p>As it happens, building the graph the &lt;code>AStar2D&lt;/code> class needs is
+remarkably easy. When we create a new tile (using the badly named
+&lt;code>set_tile()&lt;/code>) we generate the point index the graph wants and store
+it with the tile. Then in &lt;code>update_tile()&lt;/code> (which gets called either
+directly or by &lt;code>set_tile()&lt;/code>) we add/update the point in the graph
+with the cost of that type of tile. This means when we change tiles
+we also update the costs in the graph of the tile.&lt;/p>
+&lt;p>However, we also need to maintain the graph, so we do this in &lt;code>update_tile()&lt;/code>
+as well. We also need to remove the point if the tile is no longer
+navigable, and connect or disconnect points in the graph as well. For
+connecting and disconnecting points, we walk our neighbours and check
+if they are appropriate to move into, and then add these appropriate
+connections.&lt;/p>
+&lt;p>In psuedo-code, for each tile we update it looks like:&lt;/p>
+&lt;pre tabindex="0">&lt;code class="language-nohighlight" data-lang="nohighlight">if updating tile:
+if tile_type is allowed road:
+add/update this point in graph
+for each neighbour:
+if neighbour is allowed road:
+add connection between this tile and neighbour tile
+else:
+remove connection between this tile and neighbour tile
+else:
+for each neighbour:
+remove connection between this tile and neighbour tile
+remove point from graph&lt;/code>&lt;/pre>
+&lt;p>Once we have the graph with nodes, we can ask it for the path between
+two points. Because the &lt;code>AStar2D&lt;/code> class expects point indexes, there&amp;rsquo;s
+a bunch of translation back and forth between axial coordinates of
+tiles and the point index. But, that&amp;rsquo;s fairly quick and thus we have
+roads which look more natural:&lt;/p>
+&lt;p>&lt;img loading="lazy" src="its-a-road.jpg" alt="A generated road on the Hexmap" />
+&lt;/p>
+&lt;p>I said there were things I wanted to change, and in writing this down
+plus the development issues, I think it will be reworked a bit very
+shortly.&lt;/p>
+&lt;p>The first problem is that as road pieces are expected to sit on a
+tile, they clash with some tiles. Forests, for example, don&amp;rsquo;t really
+look so good with a road going through them because the trees on the
+tile look like they&amp;rsquo;re on the road. To work around that, the
+current version just forces the tile to grass if it was forest before.&lt;/p>
+&lt;p>The other problem is water. Water is currently not allowed for
+traversal. It makes no sense, it&amp;rsquo;s a road, not a boat. How this
+is going to be managed is uncertain, but it&amp;rsquo;ll have to be some
+how. The map may end up with a slice of water dividing it in two
+and without any way of generating a road between the two sides.&lt;/p>
+&lt;p>But these are problems for another day.&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>The world is a flat plane even if we were to jazz it up a bit
+with tiles at different heights. That is, the player can&amp;rsquo;t decide
+to go up or down within a tile, they can only go to whatever height
+the tile is. So all our positions are 2D, thus navigation is on a
+2D plane.&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>Hexagon Update: Roads</title><link>https://dave2.github.io/post/hexagon-update-2022-10-17/</link><pubDate>Mon, 17 Oct 2022 11:38:22 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-17/</guid><description>&lt;p>As I mentioned in &lt;a href="https://dave2.github.io/post/hexagon-update-2022-10-12/" >some previous update&lt;/a>
+I have been avoiding roads, although I have some theories on how to
+make these work.&lt;/p>
+&lt;p>The first part of this however is just making roads appear in the
+game world. The generation of roads is a bit pointless if I can&amp;rsquo;t
+see them. Also, I expect I&amp;rsquo;ll need to do extensive debugging on road generation
+and so I&amp;rsquo;ll also need to see them.&lt;/p>
+&lt;p>The tileset I&amp;rsquo;m using&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> has roads as separate models to be added to
+the base tiles. The models cover all possible exit positions and
+combinations, although they have been normalised so some combinations
+and positions require rotating the model.&lt;/p>
+&lt;p>&lt;img loading="lazy" src="preview-kenney.png" alt="Preview of Kenney.nl&amp;amp;rsquo;s Hexagon Tile Set" />
+&lt;/p>
+&lt;p>You can see the road tiles towards the bottom left corner of the
+image above (taken from Kenney.nl&amp;rsquo;s website).&lt;/p>
+&lt;p>For all of the tiles I&amp;rsquo;m using, I load these into the game based on
+some metadata about the tile, using a simple JSON file containing a
+list of the tiles and their metadata. For example, on the main tile
+set I have a metadata index containing:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;water&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;prefab_file&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;Tiles/water.glb&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;tags&amp;#34;&lt;/span>: [ &lt;span style="color:#e6db74">&amp;#34;water&amp;#34;&lt;/span> ]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;grass&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;prefab_file&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;Tiles/grass.glb&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;tags&amp;#34;&lt;/span>: [ &lt;span style="color:#e6db74">&amp;#34;grass&amp;#34;&lt;/span> ]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>
+&lt;p>(Aside: we actually read the metadata first and call &lt;code>load()&lt;/code> on the
+&lt;code>prefab_file&lt;/code> specified here, which gives us scenes to instance into
+the world. Everything is loaded into a &lt;code>Dictionary&lt;/code> for easy access.)&lt;/p>
+&lt;p>The same approach is taken with road tiles, where we annotate what
+exits a given road piece has:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>[
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;exits&amp;#34;&lt;/span>: [ &lt;span style="color:#e6db74">&amp;#34;right&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;left&amp;#34;&lt;/span> ],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;prefab_file&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;Roads/path_straight.glb&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;exits&amp;#34;&lt;/span>: [ &lt;span style="color:#e6db74">&amp;#34;right&amp;#34;&lt;/span> ],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;prefab_file&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;Roads/path_start.glb&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>]&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>
+&lt;p>As mentioned above, each road piece needs to be rotated to produce
+all of the possible combinations. The &lt;code>path_straight.glb&lt;/code> piece has
+two other rotations available, 60 degrees should give us exits of
+&lt;code>[ &amp;quot;up_right&amp;quot;, &amp;quot;down_left&amp;quot; ]&lt;/code>, and 120 should give us &lt;code>[ &amp;quot;down_right&amp;quot;, &amp;quot;up_left&amp;quot; ]&lt;/code>. (Probably, I haven&amp;rsquo;t checked this is correct!)&lt;/p>
+&lt;p>In the first pass of this code, I just wrote out the combinations by
+hand, adding a &lt;code>&amp;quot;rotation&amp;quot;&lt;/code> field to the metadata. But I quickly found
+this was cumbersome, more so when I got the exits for a given rotation
+wrong (usually 0 degrees, so everything from there was wrong!).
+Instead, we produce all of the other possible exit positions for a
+road piece by iterating over the six different possible rotations and
+rotating the exits at the same time.&lt;/p>
+&lt;p>At this point, it&amp;rsquo;s useful to talk about how I resolve a tile having
+a specific list of exits to a road piece. We need to ignore the order
+the exits were provided in, and we need a fast way to look it up.&lt;/p>
+&lt;p>The naive implementation would be to stick all the exit combinations
+into an array that points to the tile/rotation needed. Then we walk over
+every element in the array of combinations, and then on each combination
+(itself an array) we compare it to the array of exits we have.&lt;/p>
+&lt;p>This is slow, we&amp;rsquo;re walking all possible combinations, and then also
+doing a bunch of array walks and then string compares to compare the
+exit arrays. Now, maybe this is premature, but there are faster
+ways to do this.&lt;/p>
+&lt;p>Instead of storing the possible exits as an array of strings, we
+convert them to a bitfield. This has a few advantages:&lt;/p>
+&lt;ul>
+&lt;li>It reduces the exits to a fixed order, regardless of how they
+appear in the metadata&lt;/li>
+&lt;li>Bitfields are trivial to compare, they end up just as an &lt;code>int&lt;/code>&lt;/li>
+&lt;li>Using an &lt;code>int&lt;/code> as a &lt;code>Dictionary&lt;/code> key is fast and reliable&lt;/li>
+&lt;li>Rotating the exits is very easy in a bitfield&lt;/li>
+&lt;/ul>
+&lt;p>Now some of my younger readers will be wondering why on earth I would
+go deep into integer math to do this. Well, my programming roots
+include a great deal of C (that&amp;rsquo;s C, not C++, not C#) on microcontrollers,
+and that space is all about bitfields. And one thing you learn quickly
+in that space is when you have very few cycles, bitfields are very
+efficient at solving a bunch of problems.&lt;/p>
+&lt;p>During import of the road pieces, we convert the exits array for a
+piece into a bitfield. We do this by assigning a bit to each exit,
+and the order of the bits corospond to going around the possible
+rotations. In sort of psuedocode, we do this:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>str_to_mask &lt;span style="color:#f92672">=&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;right&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">0x1&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;up_right&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">0x2&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;up_left&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">0x4&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#34;left&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">0x8&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;down_left&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">0x10&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;down_right&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">0x20&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>function exits_to_mask(exit_array) &lt;span style="color:#f92672">-&amp;gt;&lt;/span> int
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mask &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> exit &lt;span style="color:#f92672">in&lt;/span> exit_array:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mask &lt;span style="color:#f92672">=&lt;/span> mask &lt;span style="color:#f92672">|&lt;/span> dirs_to_mask[exit]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> mask&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>
+&lt;p>The magic numbers are just the hexadecimal value of each bit being set
+(and only that bit).&lt;/p>
+&lt;p>When stashing the road tile, we then use the mask for the key in the
+&lt;code>Dictionary&lt;/code>, which will be a trivial lookup. (Aside: nearly $O(1)$ if you
+really want to know.)&lt;/p>
+&lt;p>I said above that rotation is easy as well. If we&amp;rsquo;ve got an array of
+strings, we can&amp;rsquo;t just move the array contents around, we have to map
+each exit to the exit rotated one step around. The map is not slow
+itself (we can just have another lookup table), but in addition to all
+the string comparisons in the lookup table we need to walk all the
+exit array members.&lt;/p>
+&lt;p>Instead, with the bitfield approach, we can rely on bit-shift
+operations to do the rotation, with a small bit of work to manage
+roll-over. Bit-shifting is often implemented in pure hardware, so
+it is reasonably efficient. Rotating the exit list each item is then just:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>function rotate_exits(mask) &lt;span style="color:#f92672">-&amp;gt;&lt;/span> int
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># shift all the exits along&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mask &lt;span style="color:#f92672">=&lt;/span> mask &lt;span style="color:#f92672">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># pass the rollover bit to the bottom&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mask &lt;span style="color:#f92672">=&lt;/span> mask &lt;span style="color:#f92672">|&lt;/span> (mask &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x40&lt;/span> &lt;span style="color:#f92672">&amp;gt;&amp;gt;&lt;/span> &lt;span style="color:#ae81ff">5&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># only keep the bits we&amp;#39;re interested in&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mask &lt;span style="color:#f92672">=&lt;/span> mask &lt;span style="color:#f92672">&amp;amp;&lt;/span> &lt;span style="color:#ae81ff">0x3f&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># and return it&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> mask&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>
+&lt;p>(Aside: most calculator apps will have a programmer mode that includes
+bit-shift and logical operations, which will show why this works.)&lt;/p>
+&lt;p>Given this, it&amp;rsquo;s fast to generate all the other road exit combinations
+for a given road piece, and to look up what piece we need for any
+combination.&lt;/p>
+&lt;p>For storage of road information, we mark tiles as having a road, and
+store the bitfield of exits. Adding a new road exit is purely
+doing a bit-wise OR on that exit in the tile. We also need to adjust
+the neighbour tile to reflect the connection back, but this is also
+a bit-wise OR.&lt;/p>
+&lt;p>This reduces our display effort to something very easy, just pull the
+road bitfield, look up that value in the index of all road pieces
+that are index by bitfield, and spawn the object in the correct place
+and rotation.&lt;/p>
+&lt;p>Easy!&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>&lt;a href="https://kenney.nl/assets/hexagon-kit" rel="noopener" target="_blank">Kenney.nl Hexagon Kit&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>Hexagon Game Update: The Past</title><link>https://dave2.github.io/post/hexagon-update-2022-10-13/</link><pubDate>Thu, 13 Oct 2022 12:29:46 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-13/</guid><description>&lt;p>I realised that since I started writing this silly wee game I actually
+haven&amp;rsquo;t written down any of the initial thoughts about how this was
+goign to work, and since I&amp;rsquo;ve only just resurrected writing a blog
+after I&amp;rsquo;d already started writing the game there&amp;rsquo;s no history here
+either.&lt;/p>
+&lt;p>Right, let&amp;rsquo;s see about writing some of those thoughts down.&lt;/p>
+&lt;h2 id="hexagon-tiles">Hexagon tiles&lt;/h2>
+&lt;p>I&amp;rsquo;m implementing a classical RPG and hexagon tiles are pretty common
+for maps in that context. Square maps are also an option, but I feel
+like they lend themselves better to worlds where you and the party
+are in fine-definition worlds, where hexagons are better at
+coarse-definition worlds.&lt;/p>
+&lt;p>So for example, in a fine-definition world a city or a village
+is a large number of tiles, you have the city&amp;rsquo;s streets to actually
+navigate around etc. In a coarse-definition world the city is one
+tile, possibly with some visual sugar around that, but internal
+city views are a bit more menu-like and less navigated using tiles.&lt;/p>
+&lt;p>This does also make some types of generation of the world a bit
+easier, because we really only looking at high-level detail and
+that has a lot fewer elements to try to model. Cities are just a
+single world position and not a complex map of tiles within the world.&lt;/p>
+&lt;p>That said, there&amp;rsquo;s nothing stopping me from implementing a nested
+world approach - where entering a city essentially creates a new
+hexagon map at a finer level of detail - so we&amp;rsquo;re not really closing
+ourselves off on doing that level of detail. It would always be a
+scene switch to do it, however.&lt;/p>
+&lt;p>Since I&amp;rsquo;m pretty rubbish at art, I&amp;rsquo;m leaning into &lt;a href="https://kenney.nl/assets/" rel="noopener" target="_blank">Kenney&amp;amp;rsquo;s Assets&lt;/a>
+which include a &lt;a href="https://kenney.nl/assets/hexagon-kit" rel="noopener" target="_blank">Hexagon Tile Kit&lt;/a>.
+So we have enough art to do world generation and some idea what the
+tile set &lt;em>should&lt;/em> be able to do, if I can write the supporting code.
+If you have an interest in game dev but not much ability in art, then
+you really should look at Kenney&amp;rsquo;s work as it&amp;rsquo;s high quality and
+available under very generous license terms.&lt;/p>
+&lt;p>The tile set is flexible enough to be coarse or fine-definition, for
+the most part. There&amp;rsquo;s some gaps here and there but for this game in
+this state the gaps are just small workarounds.&lt;/p>
+&lt;h2 id="hexagon-math">Hexagon math&lt;/h2>
+&lt;p>Having a set of actual 3D tiles is all very well but you have to
+position them. The positioning is
+some very well documented math, the resource I used is &lt;a href="https://www.redblobgames.com/grids/hexagons/" rel="noopener" target="_blank">Red Blob Games Hexagonal Grids&lt;/a>
+which is extremely clearly written and easily implemented in any language
+you like. I&amp;rsquo;m not going to explain any of the math here!&lt;/p>
+&lt;p>The discussion on co-ordinate systems in Red Blob Games&amp;rsquo;s guide is
+very important to read before going to far into the development.
+I settled on the Axial coordinate system described in the guide.&lt;/p>
+&lt;p>I didn&amp;rsquo;t consider the offset coordinate systems desscribed there for
+long because the math is annoying for neighbours, directions, distances
+etc. They were easiest to deal with by converting offset to cube or
+axial coordinates and if that&amp;rsquo;s the case I might as well use cube or
+axial natively.&lt;/p>
+&lt;p>Comparing axial to cube, the big advantage of axial is that the
+coordinates are always valid, as they are in offset systems. That is,
+a random value for each coordinate dimension is always okay, but
+with cube coordinates valid coordinates are only where they sum to zero.&lt;/p>
+&lt;p>Since the vector math for axial is nothing unusual, we can use
+Godot&amp;rsquo;s &lt;code>Vector2i&lt;/code> type for an axial coordinate. I&amp;rsquo;m using &lt;code>Vector3i&lt;/code>
+for cube coordinates and there&amp;rsquo;s conversion functions between them
+documented in the Red Blob Games guide.&lt;/p>
+&lt;p>The conversion from axial to world (ie, where we place a hex on a flat
+plane) is also in the guide and is easy to implement. That makes
+positioning in the game&amp;rsquo;s 3D world coordinate space quick to do.&lt;/p>
+&lt;h2 id="camera">Camera&lt;/h2>
+&lt;p>Hexagon tile games are commonly seen with both perspective cameras and
+orthographic cameras. The difference between the two is something you
+are best just firing at a search engine, but the tldr is perspective
+is what we see normally (far away objects are smaller), and ortographic
+keeps everything the same size regardless of distance.&lt;/p>
+&lt;p>The latter camera has the same look as games that use a 2D engine with
+tiles that fake 3Dness, the classic &amp;ldquo;isometric&amp;rdquo; look. That particular
+look is historically very common for an RPG or tile base game.&lt;/p>
+&lt;p>Although it&amp;rsquo;s tempting to ram home the somewhat retro ideas in the
+game by using an isometric (or approximately isometric) view, I&amp;rsquo;ve
+ended up using a perspective camera as I have had endless
+problems with Godot&amp;rsquo;s orthographic camera, ranging from clipping
+models to annoying lighting behaviour.&lt;/p>
+&lt;p>I know that there&amp;rsquo;s a big chunk of this which is just my understanding
+of how to correctly configure and drive the camera, but perspective
+&amp;ldquo;Just Works&amp;rdquo; and it&amp;rsquo;s perfectly valid for a tile RPG (or other hexagonal
+grid games, like Civilization), so I&amp;rsquo;m taking the path of least resistance.&lt;/p>
+&lt;h2 id="hexagon-storage">Hexagon storage&lt;/h2>
+&lt;p>The Red Blob Games guide to Hexagon grids discusses some issues around
+storage, but this is actually a pretty easy decision.&lt;/p>
+&lt;p>Since Godot provides &lt;code>Dictionary&lt;/code> type, and we can use axial coordinates
+(really &lt;code>Vector2i&lt;/code>) as keys, it is the fastest and easiest way to store the map data. It
+will tolerate any shape and holes or partially generated state. It has
+fast access since it uses a hash to return the content of a specific
+key, it enforces unique keys, and walking the whole map is no harder
+than any other storage approach. It stores about as efficiently as
+is possible.&lt;/p>
+&lt;p>As I&amp;rsquo;m using axial coordinates, there are helper functions to do
+things like return the neighours of a coordinate, or the tile in a
+specific direction and distance, and so forth. We don&amp;rsquo;t rely
+on the data storage structure to provide those constructs, so it
+doesn&amp;rsquo;t matter that the storage has no concept of these.&lt;/p>
+&lt;p>However, there&amp;rsquo;s one issue with storage of a world..&lt;/p>
+&lt;h2 id="infinite-vs-finite">Infinite vs Finite&lt;/h2>
+&lt;p>I am a fan of infinite prodcedural worlds. But for this game, I
+don&amp;rsquo;t think we need a world we move infinitely in any direction, as
+we can provide new generated challenges within a finite world.&lt;/p>
+&lt;p>Not allowing the world to be infinite has several benefits. For one, world
+generation is simplier if the world is finite, as we can simply
+iterate over the world multiple times to add features to it. With
+infinite worlds, each area or chunk (generally) needs to be generated
+independently and unexpectedly.&lt;/p>
+&lt;p>The other comes with approaching difficulty for the player. Rather than
+having the difficulty determined by some value proportionate to
+experience or gear, I would like difficulty to be determined by the
+location the player is at.&lt;/p>
+&lt;p>That is, difficulty is a function of the distance from a &amp;ldquo;safe&amp;rdquo; point
+to the edge of the world. For easy implementation, we&amp;rsquo;ll set the safe
+point to the literal center of the world (&lt;code>Vector2i(0,0)&lt;/code>). This means
+when the player travels far away from the center the challenges are
+more difficult, but they can easily control what challenges they want
+to manage just by moving around.&lt;/p>
+&lt;p>With an infinite world, you can do this, but I feel like it takes
+away from one of the values of an infinite world (that is, you can just &amp;ldquo;explore&amp;rdquo;
+and you aren&amp;rsquo;t bound to the same place, but you can&amp;rsquo;t if the difficulty
+gets worse the further you are out).&lt;/p>
+&lt;p>At the same time, I can hand-wave away the storage of the world needing
+chunks because we don&amp;rsquo;t need chunks straight away for a finite world.
+Let&amp;rsquo;s just make the whole world sit in RAM. What could go wrong?&lt;/p>
+&lt;h2 id="wraping-up">Wraping up&lt;/h2>
+&lt;p>Thus, the game being written is:&lt;/p>
+&lt;ul>
+&lt;li>A finite world, so we can cut corners on world gen&lt;/li>
+&lt;li>Difficulty scales by distance from the centre, in which case we
+can just use a &amp;ldquo;circular&amp;rdquo; (actually big hexagon) shape for the world&lt;/li>
+&lt;li>Perspective because Orthogonal camera disagrees with me&lt;/li>
+&lt;li>Doesn&amp;rsquo;t yet try to do anything to load/save/cache chunks but just
+has everything in memory at once&lt;/li>
+&lt;/ul>
+&lt;p>There&amp;rsquo;s other decisions yet to come, but this&amp;rsquo;ll do for now.&lt;/p></description></item><item><title>Hexagon Game: Update for 12 October 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-10-12/</link><pubDate>Wed, 12 Oct 2022 11:47:55 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-12/</guid><description>&lt;p>Well there&amp;rsquo;s been a little bit more progress on world generation. I&amp;rsquo;ve
+been avoiding working on roads (I have a theory) and rivers (lol no
+ideas), and doing &amp;ldquo;city&amp;rdquo; generation.&lt;/p>
+&lt;p>Placing the cities is easy enough. The world is divided into biomes,
+and we assign one city to each biome, checking to make sure when
+we place it there are no other cities too close. We also check against
+a reserved starting area.&lt;/p>
+&lt;p>The biggest problem is then names. These have to be sourced on demand
+from .. something. The best way would be names which were generated
+as needed, that were vaguely consistent with a language (ie, &amp;ldquo;hhhhhhhf&amp;rdquo;
+is not a great city name) and which didn&amp;rsquo;t just come from a fixed list
+(because I am not that creative).&lt;/p>
+&lt;p>One way would be to just use any one of a number of online generators
+to produce a &amp;ldquo;long enough&amp;rdquo; list for the game, and I did think about
+doing this. It wouldn&amp;rsquo;t be as elegant as actual name generation on
+the fly, but it&amp;rsquo;s simple to implement.&lt;/p>
+&lt;p>Although &amp;ldquo;simple to implement&amp;rdquo; is often my approach&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>, there were
+some open source name generators based on a very classical approach
+called Markov Chains. These produce new &amp;ldquo;words&amp;rdquo; by statistical
+analysis of some input word lists and then making new combinations
+from the observed patterns in the lists plus some randomness.&lt;/p>
+&lt;p>There wasn&amp;rsquo;t any good examples I liked in GDscript, so porting one
+from another language was the next best thing. Despite how awful
+I am usually at writing code, I read it fairly well and have read
+enough in a variety of languages to be able to work out how to
+translate it to another language.&lt;/p>
+&lt;p>One of the biggest problems with doing that sort of porting is the
+actual algorithm can be opaque enough that the translation is merely
+shifting one language&amp;rsquo;s syntax to another syntax and a little bit of
+massaging how it uses types and built-in functions.&lt;/p>
+&lt;p>Usually these things don&amp;rsquo;t come with a nice set of tests to show
+the outcome of any function works as expected. This means when it
+doesn&amp;rsquo;t work, if you don&amp;rsquo;t know the algorithm it an be pretty hard
+to see where it&amp;rsquo;s going wrong.&lt;/p>
+&lt;p>After a few days of headscratching, I did finally find the cause of
+the code not producing any useful words: substrings. In the original
+langauge, there&amp;rsquo;s a function &lt;code>substring()&lt;/code> which obviously would
+map to &lt;code>substr()&lt;/code> in GDscript: give me some part of the string.&lt;/p>
+&lt;p>But it turned out these two functions had different meanings for
+their inputs: In GDscript it&amp;rsquo;s &lt;code>substr(start,len)&lt;/code> while the original
+langauge I was porting from used &lt;code>substring(start,end)&lt;/code>. It had
+&lt;em>another&lt;/em> function, &lt;code>substr()&lt;/code> as well which implemented the same
+handling as GDscript&amp;rsquo;s &lt;code>substr()&lt;/code>. But this wasn&amp;rsquo;t obvious when
+I did my awful lazy conversion pass over the code.&lt;/p>
+&lt;p>Never mind, now it works. We have cities with generated names and
+a way to generate names for lots of other things.&lt;/p>
+&lt;p>At some point I&amp;rsquo;ll publish the GDscript code under the same license
+as the original if anyone wants it. I wouldn&amp;rsquo;t trust it though!&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>Some readers will be aware that in the past my view of &amp;ldquo;simple&amp;rdquo;
+has included just ignoring huge sections of RFCs because they are
+not &amp;ldquo;really&amp;rdquo; needed. That&amp;rsquo;s how simple I sometimes reach.&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item></channel></rss>
