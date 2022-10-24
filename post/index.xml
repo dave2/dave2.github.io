@@ -114,7 +114,7 @@ as well as the bar itself.&lt;/p>
 the same thing in my game code. The long work thread continues to
 update the progress bar and this visually updates, and the code
 in &lt;code>_ready()&lt;/code> waits for the long work thread to complete.
-It turns out, I wasn&amp;rsquo;t, and the detail is interesting.&lt;/p>
+It turns out, I wasn&amp;rsquo;t doing this actually, and the detail is interesting.&lt;/p>
 &lt;p>The use of &lt;code>await&lt;/code> in &lt;code>_ready()&lt;/code> is because we don&amp;rsquo;t want to block,
 we know that we can&amp;rsquo;t call &lt;code>OS.delay_msec()&lt;/code> because it would block
 and then rendering would stop. In the thread, we &lt;em>can&lt;/em> just block
