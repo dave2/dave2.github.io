@@ -212,7 +212,10 @@ Don&amp;rsquo;t use JSON for save games.&lt;/p>
 store/load functions have &lt;code>.store_string()&lt;/code> which most definitely
 does not &amp;ldquo;store&amp;rdquo; a string like every other function with &amp;ldquo;store&amp;rdquo;
 in the name. There is no &lt;code>.get_string()&lt;/code> to match it, while every
-other &amp;ldquo;store&amp;rdquo; function has a matching &amp;ldquo;get&amp;rdquo;.)&lt;/p>
+other &amp;ldquo;store&amp;rdquo; function has a matching &amp;ldquo;get&amp;rdquo;. It wasn&amp;rsquo;t immediately
+obvious if you want to store/load a string you really need to
+use &lt;code>.store_pascal_string()&lt;/code> which has a matching &amp;ldquo;get&amp;rdquo; and
+is a great throwback to a long forgotten language.)&lt;/p>
 &lt;h2 id="next-up">Next up&lt;/h2>
 &lt;p>Because I can&amp;rsquo;t leave well enough alone, I&amp;rsquo;m exploring a different
 tile set to the one currently being used. It has some nice features,
