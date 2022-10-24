@@ -270,6 +270,12 @@ what I put into you? "Hell no" says Mr JSON class.
 Thankfully, compared to the threading stuff, that's easy to deal with.
 Don't use JSON for save games.
 
+(Aside: Not that binary is free of any quirks either. The binary
+store/load functions have `.store_string()` which most definitely
+does not "store" a string like every other function with "store"
+in the name. There is no `.get_string()` to match it, while every
+other "store" function has a matching "get".)
+
 ## Next up
 
 Because I can't leave well enough alone, I'm exploring a different
