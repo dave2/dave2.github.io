@@ -274,7 +274,10 @@ Don't use JSON for save games.
 store/load functions have `.store_string()` which most definitely
 does not "store" a string like every other function with "store"
 in the name. There is no `.get_string()` to match it, while every
-other "store" function has a matching "get".)
+other "store" function has a matching "get". It wasn't immediately
+obvious if you want to store/load a string you really need to 
+use `.store_pascal_string()` which has a matching "get" and 
+is a great throwback to a long forgotten language.)
 
 ## Next up
 
