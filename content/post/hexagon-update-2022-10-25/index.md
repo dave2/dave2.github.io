@@ -144,7 +144,7 @@ Okay, so the test case worked, even though I was sure I was doing
 the same thing in my game code. The long work thread continues to
 update the progress bar and this visually updates, and the code
 in `_ready()` waits for the long work thread to complete.
-It turns out, I wasn't, and the detail is interesting.
+It turns out, I wasn't doing this actually, and the detail is interesting.
 
 The use of `await` in `_ready()` is because we don't want to block,
 we know that we can't call `OS.delay_msec()` because it would block
