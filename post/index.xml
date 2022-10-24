@@ -208,6 +208,11 @@ string you &amp;ndash; Mr JSON class &amp;ndash; put there. You want to give me 
 what I put into you? &amp;ldquo;Hell no&amp;rdquo; says Mr JSON class.&lt;/p>
 &lt;p>Thankfully, compared to the threading stuff, that&amp;rsquo;s easy to deal with.
 Don&amp;rsquo;t use JSON for save games.&lt;/p>
+&lt;p>(Aside: Not that binary is free of any quirks either. The binary
+store/load functions have &lt;code>.store_string()&lt;/code> which most definitely
+does not &amp;ldquo;store&amp;rdquo; a string like every other function with &amp;ldquo;store&amp;rdquo;
+in the name. There is no &lt;code>.get_string()&lt;/code> to match it, while every
+other &amp;ldquo;store&amp;rdquo; function has a matching &amp;ldquo;get&amp;rdquo;.)&lt;/p>
 &lt;h2 id="next-up">Next up&lt;/h2>
 &lt;p>Because I can&amp;rsquo;t leave well enough alone, I&amp;rsquo;m exploring a different
 tile set to the one currently being used. It has some nice features,
