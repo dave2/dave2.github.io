@@ -1,4 +1,222 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Loosely Coherent Ramblings</title><link>https://dave2.github.io/</link><description>Recent content on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 21 Oct 2022 15:14:39 +1300</lastBuildDate><atom:link href="https://dave2.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: Oh no</title><link>https://dave2.github.io/post/hexagon-update-2022-10-21/</link><pubDate>Fri, 21 Oct 2022 15:14:39 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-21/</guid><description>&lt;p>&lt;img loading="lazy" src="this-is-fine.jpg" alt="This is fine" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Loosely Coherent Ramblings</title><link>https://dave2.github.io/</link><description>Recent content on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 25 Oct 2022 09:25:22 +1300</lastBuildDate><atom:link href="https://dave2.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: 25 Oct 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-10-25/</link><pubDate>Tue, 25 Oct 2022 09:25:22 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-25/</guid><description>&lt;p>Lots since the last update, lets dive into it.&lt;/p>
+&lt;h2 id="refactoring-outcome">Refactoring Outcome&lt;/h2>
+&lt;p>Refactoring all the road generation to use tile variants instead of
+laying a separate prefab on top was a Huge Success and was definitely
+the right approach.&lt;/p>
+&lt;p>Baking the roads into the tile set took a while but it resulted in
+a much nicer implementation internally, as I took the chance to also
+drop object pooling.&lt;/p>
+&lt;p>An optimization I had done very early on was to push 3D tiles into a
+pool of pre-instantiated objects and pull them into the world as
+needed. This is fairly useful in most game engines, but actually in
+Godot it turns out it has no useful performance gain at all.&lt;/p>
+&lt;p>In Godot, the cost of &lt;code>.instantiate()&lt;/code> is basically nothing and you
+get a much cleaner code path without involving your own object pool.
+You can just create objects and then &lt;code>.queue_free()&lt;/code> them when done.
+The name of that function hints at what is going on under the hood,
+and something I hadn&amp;rsquo;t really noticed until I did the refactor.&lt;/p>
+&lt;p>So long as you&amp;rsquo;ve already loaded the resource, the cost of spawning
+many new ones at once is as low as all the work needed to maintain
+the object pool. Having an object pool adds huge complexity (mostly
+on the freeing side, you can&amp;rsquo;t just free the object, you need to
+&amp;ldquo;hand back&amp;rdquo; the object to the pool). Given all the extra complexity
+with no performance gain, it was a good thing to remove it entirely
+and write more simple code.&lt;/p>
+&lt;h2 id="stalling">Stalling&lt;/h2>
+&lt;p>Having refactored all code around the map view and in turn the way
+we load tile type information, it was time to revisit world generation,
+but specifically about both how slow it ran and the lack of feedback.&lt;/p>
+&lt;p>Providing feedback to the user is really important. If you&amp;rsquo;re given
+a blank screen with no visible activity, the instinct is the game
+has crashed or is otherwise misbehaving, and to kill it. It&amp;rsquo;s
+important while doing heavy work to show work being done, and ideally
+some indication about the progress of that work.&lt;/p>
+&lt;p>Okay, no worries, Godot has progress bars and text I can display for
+such things. But despite sending updates to the progress bars and
+text, nothing rendered until it was all done.&lt;/p>
+&lt;p>The immediate approach I took was to slice off the world generation
+into a thread and then just wait around for that to complete. This
+sort of worked and then I changed things and it didn&amp;rsquo;t, and because
+I&amp;rsquo;m not the smartest person I couldn&amp;rsquo;t remember what was actually
+changed which made any difference.&lt;/p>
+&lt;p>Godot supports threads, and all the supporting elements needed to make
+threads word (like mutexes and semaphores). Alas, adding all these
+in various places didn&amp;rsquo;t make the code behave any better. In one
+part of the code, we&amp;rsquo;d test if the thread was running and it would
+always return false, while the output showed the thread &lt;em>clearly&lt;/em>
+still running and spamming the log with messages.&lt;/p>
+&lt;p>It also didn&amp;rsquo;t help that it started to look like sometimes if you
+called functions they actually somehow caused all the visual rendering
+to stall even if that function should have been in a thread.. right?&lt;/p>
+&lt;p>Two days later, I now have a better understanding of both Godot&amp;rsquo;s
+main loop and most of the downsides of threads. Not a fun two days.&lt;/p>
+&lt;p>One thing I had forgotten is by and large games are single-threaded.
+They might offload certain low level functions to a thread, like
+audio playing or physics, but many games (and game engines) are
+single threaded because there are less complications about data
+access and synchronization than a multi-threaded game or engine.&lt;/p>
+&lt;p>In Godot&amp;rsquo;s case, rendering and &lt;code>_ready()&lt;/code> in a script share a thread,
+so if you block in &lt;code>_ready()&lt;/code> then rendering ain&amp;rsquo;t going to work.
+But, I had &amp;ldquo;solved&amp;rdquo; this with making sure world gen was on a thread.&lt;/p>
+&lt;p>Well, sort of. Yes, some of it was on a thread, but not all of it,
+and it was hard to identify what was actually executing where. A lot
+of print-as-debug was added with every line including the output of
+&lt;code>OS.get_thread_caller_id&lt;/code> to show where this was really taking place.&lt;/p>
+&lt;p>What I found was it looks like singletons in Godot always execute on
+the main thread, and the way to avoid this is ensure any functions
+you call are on separate objects in your thread. Okay, refactor
+around that a bit (the calls into the world map singleton are fast,
+so we&amp;rsquo;ll ignore they run in the main thread, but it meant world gen
+had to be separated from the singleton).&lt;/p>
+&lt;p>Still, we had problems, threads were being reported to the main
+code as finished when the logs were full of signs they were running.
+Getting to the bottom of this I think came down to pure luck and
+writing a separate set of tests in a different Godot project.&lt;/p>
+&lt;p>The test case I wrote looked something like the following. Note in
+this example we have a script on a node called &lt;code>SimpleProgressBar&lt;/code>
+which updates different elements, like upper and lower text messages
+as well as the bar itself.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>var progress_bar : Node
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>var m : Mutex
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>func _ready():
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># we&amp;#39;ll use a progress bar for visuals&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> progress_bar &lt;span style="color:#f92672">=&lt;/span> get_node(&lt;span style="color:#e6db74">&amp;#34;SimpleProgressBar&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># we&amp;#39;ll use this to protect our access&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> m &lt;span style="color:#f92672">=&lt;/span> Mutex&lt;span style="color:#f92672">.&lt;/span>new()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># start the long work thread&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> var t &lt;span style="color:#f92672">=&lt;/span> Thread&lt;span style="color:#f92672">.&lt;/span>new()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t&lt;span style="color:#f92672">.&lt;/span>start(Callable(self,&lt;span style="color:#e6db74">&amp;#34;_long_work_thread&amp;#34;&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> range(&lt;span style="color:#ae81ff">0&lt;/span>,&lt;span style="color:#ae81ff">100&lt;/span>):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># update the progress bar too!&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> m&lt;span style="color:#f92672">.&lt;/span>lock()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> progress_bar&lt;span style="color:#f92672">.&lt;/span>set_progress(i)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> m&lt;span style="color:#f92672">.&lt;/span>unlock()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">await&lt;/span> get_tree()&lt;span style="color:#f92672">.&lt;/span>create_timer(&lt;span style="color:#ae81ff">1&lt;/span>)&lt;span style="color:#f92672">.&lt;/span>timeout
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># wait for the thread to exist&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">while&lt;/span> t&lt;span style="color:#f92672">.&lt;/span>is_alive():
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">await&lt;/span> get_tree()&lt;span style="color:#f92672">.&lt;/span>create_timer(&lt;span style="color:#ae81ff">1&lt;/span>)&lt;span style="color:#f92672">.&lt;/span>timeout
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># clean up thread (normally blocks unless thread is dead)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> t&lt;span style="color:#f92672">.&lt;/span>wait_until_finished()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>func _long_work_thread():
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> i &lt;span style="color:#f92672">in&lt;/span> range(&lt;span style="color:#ae81ff">0&lt;/span>,&lt;span style="color:#ae81ff">100&lt;/span>):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># update the progress bar, ensuring no-one else is&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> m&lt;span style="color:#f92672">.&lt;/span>lock()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> progress_bar&lt;span style="color:#f92672">.&lt;/span>set_lower_text(&lt;span style="color:#e6db74">&amp;#34;Long process step &lt;/span>&lt;span style="color:#e6db74">%d&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span> &lt;span style="color:#f92672">%&lt;/span> i)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> m&lt;span style="color:#f92672">.&lt;/span>unlock()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># simulate a long process&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> OS&lt;span style="color:#f92672">.&lt;/span>delay_msec(&lt;span style="color:#ae81ff">5000&lt;/span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Okay, so the test case worked, even though I was sure I was doing
+the same thing in my game code. The long work thread continues to
+update the progress bar and this visually updates, and the code
+in &lt;code>_ready()&lt;/code> waits for the long work thread to complete.
+It turns out, I wasn&amp;rsquo;t, and the detail is interesting.&lt;/p>
+&lt;p>The use of &lt;code>await&lt;/code> in &lt;code>_ready()&lt;/code> is because we don&amp;rsquo;t want to block,
+we know that we can&amp;rsquo;t call &lt;code>OS.delay_msec()&lt;/code> because it would block
+and then rendering would stop. In the thread, we &lt;em>can&lt;/em> just block
+(after all, that&amp;rsquo;s the point of the thread), so we call &lt;code>OS.delay_msec()&lt;/code>.&lt;/p>
+&lt;p>Going back over my game code, surely it doesn&amp;rsquo;t matter in a thread
+if we block or not, the thread is separate and we can do what we
+like. Oh, no, we definitely can&amp;rsquo;t.&lt;/p>
+&lt;p>Let&amp;rsquo;s use a non-blocking delay instead in the long work thread, change
+&lt;code>OS.delay_msec(5000)&lt;/code> to &lt;code>await get_tree().create_timer(5).timeout&lt;/code>
+which is the same 5 second delay. Suddenly now the main code in
+&lt;code>_ready&lt;/code> doesn&amp;rsquo;t wait for the thread to finish, it just plows through
+having been told from the result of &lt;code>t.is_alive()&lt;/code> that the thread
+is dead.&lt;/p>
+&lt;p>It appears that you &lt;em>cannot&lt;/em> call &lt;code>await&lt;/code> in a thread other than the
+main thread. For whatever reason, the thread is lost and forgotten
+and you can&amp;rsquo;t get back to it. It is not the case that creating a
+thread gives you the same properties as the main thread &lt;em>at all&lt;/em>.&lt;/p>
+&lt;p>The reason this tripped me up is that I was also doing some fancy
+fades using tweens to the progress bar. The common way to write
+this (and comes up in all the searches BTW) is:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>var tween &lt;span style="color:#f92672">=&lt;/span> create_tween()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tween&lt;span style="color:#f92672">.&lt;/span>tween_property(progress_bar, &lt;span style="color:#e6db74">&amp;#34;modulate:a&amp;#34;&lt;/span>, &lt;span style="color:#ae81ff">1.0&lt;/span>, &lt;span style="color:#ae81ff">1.0&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">await&lt;/span> t&lt;span style="color:#f92672">.&lt;/span>finished
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>So naturally, in my thread for doing long work, it started with
+that exact fragment. And then the thread blew up.&lt;/p>
+&lt;p>In fact, in the main loop we can do that, but we &lt;em>must&lt;/em> block if
+we want to do that in a thread, and it becomes:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>var tween &lt;span style="color:#f92672">=&lt;/span> create_tween()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tween&lt;span style="color:#f92672">.&lt;/span>tween_property(progress_bar, &lt;span style="color:#e6db74">&amp;#34;modulate:a&amp;#34;&lt;/span>, &lt;span style="color:#ae81ff">1.0&lt;/span>, &lt;span style="color:#ae81ff">1.0&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">while&lt;/span> tween&lt;span style="color:#f92672">.&lt;/span>is_running():
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> OS&lt;span style="color:#f92672">.&lt;/span>delay_msec(&lt;span style="color:#ae81ff">100&lt;/span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Annoyingly, this also still causes rendering issues, but mostly
+it seems to be because &lt;code>OS.delay_msec()&lt;/code> might just busy-loop and
+so it starves something else of cycles, so you get stuttering and
+uneven tweens.&lt;/p>
+&lt;p>The alternative to a thread for long work is our friend &lt;code>await&lt;/code> and
+littering your long work with lots of calls to &lt;code>await get_tree().process_frame&lt;/code>
+which will gracefully leave to allow rendering to continue for a whole
+frame, and then come back. This is pretty much how a single-threaded
+game should be doing things, but it certainly feels rough to write.&lt;/p>
+&lt;p>Anyway, that&amp;rsquo;s two days I won&amp;rsquo;t get back.&lt;/p>
+&lt;p>I&amp;rsquo;m unsure if I&amp;rsquo;ll revert out of threads for things like world gen,
+or leave it there. Now it has no problems with unexplained &amp;ldquo;death&amp;rdquo;
+it works so I&amp;rsquo;m tempted not to touch that whole space for a while.&lt;/p>
+&lt;p>Performance was also problematic for generating the world (even in
+a nice thread). There were quite a few cases where I was using
+a &lt;code>Dictionary&lt;/code> for performance and then throwing that all away by
+forcing GDscript to iterate over an &lt;code>Array&lt;/code>, which is a lot slower.&lt;/p>
+&lt;p>For example, here&amp;rsquo;s a few of ways of testing if we have something:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>var big_thing : Dictionary()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># ...&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> big_thing&lt;span style="color:#f92672">.&lt;/span>has(&lt;span style="color:#e6db74">&amp;#34;key&amp;#34;&lt;/span>):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># ...&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#e6db74">&amp;#34;key&amp;#34;&lt;/span> &lt;span style="color:#f92672">in&lt;/span> big_thing:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># ...&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#e6db74">&amp;#34;key&amp;#34;&lt;/span> &lt;span style="color:#f92672">in&lt;/span> big_thing&lt;span style="color:#f92672">.&lt;/span>keys()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># ...&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The first is obviously using the dictionary correctly. The second and
+third I thought were the same, because of the &lt;code>in&lt;/code> operator. This is
+not the case: using &lt;code>in&lt;/code> with a &lt;code>Dictionary&lt;/code> is functionally the same
+as calling &lt;code>.has()&lt;/code> on it, while using &lt;code>in&lt;/code> with the result of &lt;code>.keys()&lt;/code>
+of the &lt;code>Dictionary&lt;/code> produces an &lt;code>Array&lt;/code> and then uses the &lt;code>in&lt;/code> operator
+on it which is really really slow.&lt;/p>
+&lt;p>I&amp;rsquo;ve been mixing all three types without much care, and it actually
+matters a lot. I still randomly pick between &lt;code>x.has(key)&lt;/code> and &lt;code>key in x&lt;/code>
+which isn&amp;rsquo;t so good, but for now at least they both don&amp;rsquo;t suck.&lt;/p>
+&lt;p>This alone was responsible for a large amount of lost time in world
+generation.&lt;/p>
+&lt;h2 id="saving-and-loading">Saving and Loading&lt;/h2>
+&lt;p>After the fun with threads, I got on with actually useful progress
+(ha ha) and implemented saving and loading the game state. This
+is mostly easy, and apart from not clearing out some state when
+loading, it just works.&lt;/p>
+&lt;p>Save games are packed binary files, because serialization to say
+JSON is kind of annoying. Lots of types you &lt;em>have&lt;/em> to munge and
+can&amp;rsquo;t just call &lt;code>JSON.stringify()&lt;/code> on a wodge of data. Instead
+you have to pick out and transform some things to strings before
+trying to throw them into JSON.&lt;/p>
+&lt;p>It&amp;rsquo;s not that &lt;code>stringify()&lt;/code> can&amp;rsquo;t convert some types to strings,
+it does that just fine. It&amp;rsquo;s that the inverse function, &lt;code>parse()&lt;/code>
+doesn&amp;rsquo;t understand how to reverse &lt;code>stringify()&lt;/code> for all cases.&lt;/p>
+&lt;p>Take a &lt;code>Vector2&lt;/code>, the string version is something like &lt;code>&amp;quot;(1.0, 2.0)&amp;quot;&lt;/code>,
+which is just fine, it&amp;rsquo;s what &lt;code>JSON.stringify()&lt;/code> produces, it&amp;rsquo;s valid
+JSON so all good. However, &lt;code>parse()&lt;/code> just sees that as a string and
+gives you back .. a string. Fair enough, it &lt;strong>is&lt;/strong> a string, but it&amp;rsquo;s a
+string you &amp;ndash; Mr JSON class &amp;ndash; put there. You want to give me back
+what I put into you? &amp;ldquo;Hell no&amp;rdquo; says Mr JSON class.&lt;/p>
+&lt;p>Thankfully, compared to the threading stuff, that&amp;rsquo;s easy to deal with.
+Don&amp;rsquo;t use JSON for save games.&lt;/p>
+&lt;h2 id="next-up">Next up&lt;/h2>
+&lt;p>Because I can&amp;rsquo;t leave well enough alone, I&amp;rsquo;m exploring a different
+tile set to the one currently being used. It has some nice features,
+like hexagons are more obviously visible, and a lot of interesting
+decorations for tiles.&lt;/p>
+&lt;p>While playing around with a different tile set, it&amp;rsquo;s also become
+clear I am not handling materials on tiles in a way that makes it
+a bit easier for me to tweak the tile colouring and surface. So
+we&amp;rsquo;ll also be fixing that for the tile sets as well.&lt;/p></description></item><item><title>Hexagon Update: Oh no</title><link>https://dave2.github.io/post/hexagon-update-2022-10-21/</link><pubDate>Fri, 21 Oct 2022 15:14:39 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-21/</guid><description>&lt;p>&lt;img loading="lazy" src="this-is-fine.jpg" alt="This is fine" />
 &lt;/p>
 &lt;p>So I am now deep in the refactor well, and I&amp;rsquo;m pretty sure I can
 eventually get myself out, but right now everything is broken
