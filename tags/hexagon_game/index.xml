@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>hexagon_game on Loosely Coherent Ramblings</title><link>https://dave2.github.io/tags/hexagon_game/</link><description>Recent content in hexagon_game on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 21 Oct 2022 15:14:39 +1300</lastBuildDate><atom:link href="https://dave2.github.io/tags/hexagon_game/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: Oh no</title><link>https://dave2.github.io/post/hexagon-update-2022-10-21/</link><pubDate>Fri, 21 Oct 2022 15:14:39 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-21/</guid><description>&lt;p>&lt;img loading="lazy" src="this-is-fine.jpg" alt="This is fine" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>hexagon_game on Loosely Coherent Ramblings</title><link>https://dave2.github.io/tags/hexagon_game/</link><description>Recent content in hexagon_game on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 21 Oct 2022 15:14:39 +1300</lastBuildDate><atom:link href="https://dave2.github.io/tags/hexagon_game/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: Oh no</title><link>https://dave2.github.io/post/hexagon-update-2022-10-21/</link><pubDate>Fri, 21 Oct 2022 15:14:39 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-21/</guid><description>&lt;p>
+&lt;img src="this-is-fine.jpg" alt="This is fine">
 &lt;/p>
 &lt;p>So I am now deep in the refactor well, and I&amp;rsquo;m pretty sure I can
 eventually get myself out, but right now everything is broken
@@ -111,7 +112,8 @@ two points. Because the &lt;code>AStar2D&lt;/code> class expects point indexes, 
 a bunch of translation back and forth between axial coordinates of
 tiles and the point index. But, that&amp;rsquo;s fairly quick and thus we have
 roads which look more natural:&lt;/p>
-&lt;p>&lt;img loading="lazy" src="its-a-road.jpg" alt="A generated road on the Hexmap" />
+&lt;p>
+&lt;img src="its-a-road.jpg" alt="A generated road on the Hexmap">
 &lt;/p>
 &lt;p>I said there were things I wanted to change, and in writing this down
 plus the development issues, I think it will be reworked a bit very
@@ -149,7 +151,8 @@ and so I&amp;rsquo;ll also need to see them.&lt;/p>
 the base tiles. The models cover all possible exit positions and
 combinations, although they have been normalised so some combinations
 and positions require rotating the model.&lt;/p>
-&lt;p>&lt;img loading="lazy" src="preview-kenney.png" alt="Preview of Kenney.nl&amp;amp;rsquo;s Hexagon Tile Set" />
+&lt;p>
+&lt;img src="preview-kenney.png" alt="Preview of Kenney.nl&amp;amp;rsquo;s Hexagon Tile Set">
 &lt;/p>
 &lt;p>You can see the road tiles towards the bottom left corner of the
 image above (taken from Kenney.nl&amp;rsquo;s website).&lt;/p>

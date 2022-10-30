@@ -1,4 +1,74 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Loosely Coherent Ramblings</title><link>https://dave2.github.io/</link><description>Recent content on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 25 Oct 2022 09:25:22 +1300</lastBuildDate><atom:link href="https://dave2.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: 25 Oct 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-10-25/</link><pubDate>Tue, 25 Oct 2022 09:25:22 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-25/</guid><description>&lt;p>Lots since the last update, lets dive into it.&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Loosely Coherent Ramblings</title><link>https://dave2.github.io/</link><description>Recent content on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 31 Oct 2022 09:23:10 +1300</lastBuildDate><atom:link href="https://dave2.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: One Month</title><link>https://dave2.github.io/post/hexagon-update-2022-10-31/</link><pubDate>Mon, 31 Oct 2022 09:23:10 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-31/</guid><description>&lt;p>Around a month ago, I started writing this silly game and I must
+admit I am still surprised it&amp;rsquo;s gotten to the point it has. I expected
+that world generation would really be my undoing, and instead it
+seems to be going okay.&lt;/p>
+&lt;h2 id="then-vs-now">Then vs Now&lt;/h2>
+&lt;p>
+&lt;figure>
+&lt;img src="earliest-screen.jpg" alt="Screenshot of Hexagon World at near the start of development, shows hand-defined world under menu">
+&lt;figcaption>28 September 2022&lt;/figcaption>
+&lt;/figure>
+&lt;/p>
+&lt;p>
+&lt;figure>
+&lt;img src="one-month.jpg" alt="Screenshot of Hexagon World at one month, show land, water, cities, roads and boat paths">
+&lt;figcaption>31 October 2022&lt;/figcaption>
+&lt;/figure>
+&lt;/p>
+&lt;h2 id="current-state">Current State&lt;/h2>
+&lt;p>So where are we at now? Well, here&amp;rsquo;s a short list of what was done
+in the last month:&lt;/p>
+&lt;ul>
+&lt;li>Interim camera movement (currently using WASD)&lt;/li>
+&lt;li>Hexagon tile placement, along with most of the math to manage
+simple tile relationships (like neighbours)&lt;/li>
+&lt;li>Tile attributes are not hard-coded, but defined in JSON and
+interpreted by the code building the current view&lt;/li>
+&lt;li>Tiles are spawned/removed automatically by camera view&lt;/li>
+&lt;li>Tiles can have a decoration placed on top, and rules enforced by
+attributes in JSON&lt;/li>
+&lt;li>Tile decorations can react to roads and push to a different decoration&lt;/li>
+&lt;li>Tile models can be normalised for connections to other tiles, generate
+the rotation of tiles needed to make all possible combinations&lt;/li>
+&lt;li>World Generation:
+&lt;ul>
+&lt;li>Repeatable generation from a seed&lt;/li>
+&lt;li>Biomes (defined but not yet used)&lt;/li>
+&lt;li>Terrain (including height)&lt;/li>
+&lt;li>Forests&lt;/li>
+&lt;li>Cities with walls, generated names, and internal details&lt;/li>
+&lt;li>Transport built between cities that respect terrain (roads for land,
+boat paths for water, and transition details between land/water),
+terrain has costs for being traversed depending on tile and height,
+avoidance of tiles or tile decorations for transport paths&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Saving and loading game state including map&lt;/li>
+&lt;li>Managing save game slots&lt;/li>
+&lt;li>Global setting saving and loading (eg, music volume)&lt;/li>
+&lt;/ul>
+&lt;p>Yeah I really am surprised all that got done, and works.&lt;/p>
+&lt;h2 id="unrealistic-future-plans">Unrealistic Future Plans&lt;/h2>
+&lt;p>The next month or so I want to focus on two things:&lt;/p>
+&lt;ul>
+&lt;li>Finish world generation
+&lt;ul>
+&lt;li>Build &amp;ldquo;counties&amp;rdquo; for difficulty level&lt;/li>
+&lt;li>Add more POIs than just cities (like, villages, mines, farms,
+lumber yards, mills, and watch towers)&lt;/li>
+&lt;li>Add a little more detailing to grass than just bulk forest&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Movement
+&lt;ul>
+&lt;li>Visual representation of where the player is&lt;/li>
+&lt;li>Show navigation rule application&lt;/li>
+&lt;li>Allow player to move around the map&lt;/li>
+&lt;li>&amp;ldquo;Fog of War&amp;rdquo;-like discovery of the map&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>Let&amp;rsquo;s see how this all goes!&lt;/p></description></item><item><title>Hexagon Update: 25 Oct 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-10-25/</link><pubDate>Tue, 25 Oct 2022 09:25:22 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-25/</guid><description>&lt;p>Lots since the last update, lets dive into it.&lt;/p>
 &lt;h2 id="refactoring-outcome">Refactoring Outcome&lt;/h2>
 &lt;p>Refactoring all the road generation to use tile variants instead of
 laying a separate prefab on top was a Huge Success and was definitely
@@ -224,7 +294,8 @@ decorations for tiles.&lt;/p>
 &lt;p>While playing around with a different tile set, it&amp;rsquo;s also become
 clear I am not handling materials on tiles in a way that makes it
 a bit easier for me to tweak the tile colouring and surface. So
-we&amp;rsquo;ll also be fixing that for the tile sets as well.&lt;/p></description></item><item><title>Hexagon Update: Oh no</title><link>https://dave2.github.io/post/hexagon-update-2022-10-21/</link><pubDate>Fri, 21 Oct 2022 15:14:39 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-21/</guid><description>&lt;p>&lt;img loading="lazy" src="this-is-fine.jpg" alt="This is fine" />
+we&amp;rsquo;ll also be fixing that for the tile sets as well.&lt;/p></description></item><item><title>Hexagon Update: Oh no</title><link>https://dave2.github.io/post/hexagon-update-2022-10-21/</link><pubDate>Fri, 21 Oct 2022 15:14:39 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-21/</guid><description>&lt;p>
+&lt;img src="this-is-fine.jpg" alt="This is fine">
 &lt;/p>
 &lt;p>So I am now deep in the refactor well, and I&amp;rsquo;m pretty sure I can
 eventually get myself out, but right now everything is broken
@@ -337,7 +408,8 @@ two points. Because the &lt;code>AStar2D&lt;/code> class expects point indexes, 
 a bunch of translation back and forth between axial coordinates of
 tiles and the point index. But, that&amp;rsquo;s fairly quick and thus we have
 roads which look more natural:&lt;/p>
-&lt;p>&lt;img loading="lazy" src="its-a-road.jpg" alt="A generated road on the Hexmap" />
+&lt;p>
+&lt;img src="its-a-road.jpg" alt="A generated road on the Hexmap">
 &lt;/p>
 &lt;p>I said there were things I wanted to change, and in writing this down
 plus the development issues, I think it will be reworked a bit very
@@ -375,7 +447,8 @@ and so I&amp;rsquo;ll also need to see them.&lt;/p>
 the base tiles. The models cover all possible exit positions and
 combinations, although they have been normalised so some combinations
 and positions require rotating the model.&lt;/p>
-&lt;p>&lt;img loading="lazy" src="preview-kenney.png" alt="Preview of Kenney.nl&amp;amp;rsquo;s Hexagon Tile Set" />
+&lt;p>
+&lt;img src="preview-kenney.png" alt="Preview of Kenney.nl&amp;amp;rsquo;s Hexagon Tile Set">
 &lt;/p>
 &lt;p>You can see the road tiles towards the bottom left corner of the
 image above (taken from Kenney.nl&amp;rsquo;s website).&lt;/p>
