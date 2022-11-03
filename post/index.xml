@@ -1,4 +1,59 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Posts on Loosely Coherent Ramblings</title><link>https://dave2.github.io/post/</link><description>Recent content in Posts on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 31 Oct 2022 09:23:10 +1300</lastBuildDate><atom:link href="https://dave2.github.io/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: One Month</title><link>https://dave2.github.io/post/hexagon-update-2022-10-31/</link><pubDate>Mon, 31 Oct 2022 09:23:10 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-31/</guid><description>&lt;p>Around a month ago, I started writing this silly game and I must
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Posts on Loosely Coherent Ramblings</title><link>https://dave2.github.io/post/</link><description>Recent content in Posts on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 03 Nov 2022 20:38:00 +1300</lastBuildDate><atom:link href="https://dave2.github.io/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: 3 Nov 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-11-03/</link><pubDate>Thu, 03 Nov 2022 20:38:00 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-11-03/</guid><description>&lt;p>This will be a quick update only..&lt;/p>
+&lt;p>I&amp;rsquo;ve started working on allowing a placeholder player to be move around
+the world. Actually, this wasn&amp;rsquo;t too hard, it even does a nice tween that
+deals with distance. I don&amp;rsquo;t actually need to do that (I expect players
+to move hex by hex) but it&amp;rsquo;s nice to know the code works.&lt;/p>
+&lt;p>By &amp;ldquo;wasn&amp;rsquo;t too hard&amp;rdquo;, it did open up the can of worms I&amp;rsquo;ve been waiting
+to have pounce on me.&lt;/p>
+&lt;p>The first thing was the default node for just holding UI elements
+will block all mouse interaction below it in the scene. This is not the
+first time I&amp;rsquo;ve scratched my head for a good long while wondering why no
+mouse events seem to reach the view of the world. I am not sure why
+essentially a holder for UI nodes defaults to blocking mouse events.
+It can be disabled, but by default if you just create this simple
+bag of holding UI, it blocks mouse events.&lt;/p>
+&lt;p>Anyway, once that was out of the way (literally) mouse events were cleanly
+getting down through to the world map and useful events coming from it.
+The easy way to get an event for clicking or tapping an object is to
+make it &amp;ldquo;pickable&amp;rdquo;, which means throwing a collider on it and then
+ensuring &amp;ldquo;pickable&amp;rdquo; is ticked. Easy! In fact Godot then takes care of a
+ton of problems for you, just connect the signal out of any tile to a
+common handler, and it takes care of all the conversion from
+viewport-camera coordinates to &amp;ldquo;real&amp;rdquo; world ones and you&amp;rsquo;re off.&lt;/p>
+&lt;p>Okay, so there&amp;rsquo;s the can of worms. Every tile would need a collider to do
+it this way. Or, maybe only the active selectable ones. Maybe the
+collider is built at runtime, or on importing models, .. or it&amp;rsquo;s baked
+into a nice prefab that could hold a bunch of other things. The options are
+a bit far and wide. That&amp;rsquo;s before you go down the path of just raycasting
+yourself out the camera on a low-level mouse click.&lt;/p>
+&lt;p>I&amp;rsquo;m loathe to rebuild all the tiles again shifting from the ready-to-go
+GLTF that Godot handles fairly well. I&amp;rsquo;ve already walked every single one
+externalising materials so I can apply my own common set to tiles. And
+I would have to do something else to use more raw mesh formats and
+override the materials.&lt;/p>
+&lt;p>Building the collider on import is what I&amp;rsquo;ve done in other projects before.
+It&amp;rsquo;s not too hard to programatically create one as tile is being loaded.
+But it feels like ugly code and another loading step, is marginally harder
+to position correctly, but mostly feels &amp;ldquo;anti-Godot&amp;rdquo; somehow? It has a
+scene system, so why add complexity fiddling with models in code.&lt;/p>
+&lt;p>There&amp;rsquo;s also the point that, as I said above, if I&amp;rsquo;m moving hex by hex
+I could actually just add colliders at runtime when we want to move, and
+add them only to the valid tiles. But that&amp;rsquo;s also got problems, the
+relationship between the collider at the hex is either disconnected (and
+we need to calculate the placement in the world separately), or it&amp;rsquo;s a
+child of the tile, but then we&amp;rsquo;re tinkering with the tile&amp;rsquo;s children
+(which means we have to be careful to clean up).&lt;/p>
+&lt;p>And sitting in the back of my head is that &lt;em>if&lt;/em> I were to rebuild the
+tiles I could also add some other features to them. If I wanted to have
+smoke from a chimney, or moving water wheels, then this is all easier
+to do with taking the meshes more directly into a prefab and include all
+the other elements (like animation nodes) in there.&lt;/p>
+&lt;p>In other words, rebuilding them is probably going to happen eventually
+and if I do half that job now, then adding animations and particles to
+them is &amp;ldquo;fairly&amp;rdquo; easy.&lt;/p>
+&lt;p>In the meantime, the game has a proper pause menu and saving just needs
+to be wired to the save button. So it&amp;rsquo;s not a lot of progress, but there
+has been some!&lt;/p></description></item><item><title>Hexagon Update: One Month</title><link>https://dave2.github.io/post/hexagon-update-2022-10-31/</link><pubDate>Mon, 31 Oct 2022 09:23:10 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-10-31/</guid><description>&lt;p>Around a month ago, I started writing this silly game and I must
 admit I am still surprised it&amp;rsquo;s gotten to the point it has. I expected
 that world generation would really be my undoing, and instead it
 seems to be going okay.&lt;/p>
