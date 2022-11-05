@@ -1,4 +1,93 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Loosely Coherent Ramblings</title><link>https://dave2.github.io/</link><description>Recent content on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 03 Nov 2022 20:38:00 +1300</lastBuildDate><atom:link href="https://dave2.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: 3 Nov 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-11-03/</link><pubDate>Thu, 03 Nov 2022 20:38:00 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-11-03/</guid><description>&lt;p>This will be a quick update only..&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Loosely Coherent Ramblings</title><link>https://dave2.github.io/</link><description>Recent content on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 05 Nov 2022 22:43:00 +1300</lastBuildDate><atom:link href="https://dave2.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: 5 Nov 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-11-05/</link><pubDate>Sat, 05 Nov 2022 22:43:00 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-11-05/</guid><description>&lt;p>After much deliberation, I ended up doing none of the things I thought
+as options when I wrote the &lt;a href="https://dave2.github.io/post/hexagon-update-2022-11-03/" >last post&lt;/a>
+.. and as it happens this ended up being a fairly simple implementation.&lt;/p>
+&lt;p>Stashed in the back of my code was a prefab I used for a lot of the early
+testing of biomes. Back then it looked like this:&lt;/p>
+&lt;p>
+&lt;img src="early_biomes.jpg" alt="Early version of Hexagon World debugging biomes, solid outline hexagons on every tile with different colours">
+&lt;/p>
+&lt;p>The prefab itself is just a holder for a &lt;code>Sprite3D&lt;/code> which was sized correctly
+to show as a border. It&amp;rsquo;s really just a PNG file with transparency. Anyway,
+I&amp;rsquo;d used it a fair bit, and even called it the &amp;ldquo;selector&amp;rdquo; prefab in the code.
+It had a script attached to do simple things like change the colour of the
+selector (by using the &lt;code>modulate&lt;/code> property on the &lt;code>Sprite3D&lt;/code>).&lt;/p>
+&lt;p>But I hadn&amp;rsquo;t actually used it for selection .. until now. Now it was
+definitely the shortest path to just showing what we could select as
+movement tiles. It was an already defined and built prefab, and because
+it was intended to be spawned only on tiles you could select, it made
+sense to just bake a collider into it as well.&lt;/p>
+&lt;p>Now I had something I could spawn into the world which had both the visual
+indication to the player and the collider needed to make that space pickable.
+After that, it was a quick trip through the neighbours of the cell the player
+was on, and we&amp;rsquo;re off to the races.&lt;/p>
+&lt;p>When we&amp;rsquo;re walking the neighbours for the current position, we need to test
+if we can move there. I had originally thought about baking a whole
+navigation mesh (probably actually just a filtered version of the one used
+to build roads?) but actually we can test the neighbours pretty fast against
+some simple policies.&lt;/p>
+&lt;p>So now every tile has player access policies called &lt;code>player_allowed&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;grass&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;prefab_file&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;Tiles/hex_forest/hex_forest_detail.gltf.glb&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;cost&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">1.0&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;road_cost&amp;#34;&lt;/span>: &lt;span style="color:#ae81ff">0.2&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;allow_rotation&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">true&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;player_allowed&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;always&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The same was added to decorations:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>[
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;dock&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;prefab_file&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;TileDecorations/dock.glb&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;tile_types&amp;#34;&lt;/span>: [ &lt;span style="color:#e6db74">&amp;#34;water&amp;#34;&lt;/span> ],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;allow_rotation&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">true&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;allow_roads&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">true&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;show_roads&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">true&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;player_allowed&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;road_only&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>]
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>There are three policies: &lt;code>never&lt;/code> which blocks player movement either by
+decoration or by base tile, &lt;code>road_only&lt;/code> which requires a road defined on the
+base tile (either enforced by decoration, or by the tile itself), and &lt;code>always&lt;/code>
+which is treated as a fall-through for decorations and a hard policy for
+tiles.&lt;/p>
+&lt;p>(Aside: Yes, &lt;code>always&lt;/code> on a decoration really means &lt;code>well_maybe&lt;/code> but anyway..)&lt;/p>
+&lt;p>After walking the neighbours and testing if we can use them, it&amp;rsquo;s straight
+into spawning some prefabs and managing them coming in and out of existance
+as we move.&lt;/p>
+&lt;p>The work handling clicks had already been done in testing out if I needed
+to modify all tile prefabs.&lt;/p>
+&lt;p>So we have player movement! It respects tile polices, so players can cross
+water if a boat path (internally just a road with a pretty tile) but not
+walk out on to any water. Mountains block you walking through them.&lt;/p>
+&lt;p>I made a quick video (with no audio because it&amp;rsquo;s mostly disabled in game
+at the moment), which appears below:&lt;/p>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/etbXx9Hmghg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;p>The player icon is definitely very placeholder. I&amp;rsquo;m not sure what I want
+to do for that.&lt;/p>
+&lt;p>The last part, and made after the video was uploaded, was to finally
+clean up the placenames display. For a long time I&amp;rsquo;ve used an on-map
+&lt;code>Label3D&lt;/code> which provided world-space text, and sort of tried to make it
+flat on the map just below the castle.&lt;/p>
+&lt;p>Well cities are a lot more than just a single castle tile now, and the
+flat label looks quite bad against the selection hexes, so it was time
+to move them out of the world map and into the UI.&lt;/p>
+&lt;p>There&amp;rsquo;s now a banner at the top of the screen which shows the current
+placename (just cities for now). It fades in/out as you move in or out
+of a city. It&amp;rsquo;s much cleaner I think than the old map label.&lt;/p>
+&lt;p>
+&lt;img src="new_city_labels.jpg" alt="Hexagon World game screenshot showing a city, with the city name &amp;amp;lsquo;City of Walton&amp;amp;rsquo; at the top">
+&lt;/p>
+&lt;p>I think they&amp;rsquo;re a huge improvement, but will also allow me to name
+general areas, such as lake/ocean pieces, counties, or biomes. The UI stuff
+is very very slowly starting to feel like it does what I want it to do
+with only &lt;em>some&lt;/em> tearing of hair out. Previously I would lose a lot of
+hair and have no UI to show for it!&lt;/p>
+&lt;p>Of the goals for the next month, all but one of the movement ones are now
+done which is nice for only a couple of days later! Don&amp;rsquo;t expect that
+much progress in the rest of the month however!&lt;/p></description></item><item><title>Hexagon Update: 3 Nov 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-11-03/</link><pubDate>Thu, 03 Nov 2022 20:38:00 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-11-03/</guid><description>&lt;p>This will be a quick update only..&lt;/p>
 &lt;p>I&amp;rsquo;ve started working on allowing a placeholder player to be move around
 the world. Actually, this wasn&amp;rsquo;t too hard, it even does a nice tween that
 deals with distance. I don&amp;rsquo;t actually need to do that (I expect players
