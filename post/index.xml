@@ -1,4 +1,60 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Posts on Loosely Coherent Ramblings</title><link>https://dave2.github.io/post/</link><description>Recent content in Posts on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 10 Nov 2022 12:43:00 +1300</lastBuildDate><atom:link href="https://dave2.github.io/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: 10 Nov 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-11-10/</link><pubDate>Thu, 10 Nov 2022 12:43:00 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-11-10/</guid><description>&lt;h2 id="world-view-and-gen">World View and Gen&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Posts on Loosely Coherent Ramblings</title><link>https://dave2.github.io/post/</link><description>Recent content in Posts on Loosely Coherent Ramblings</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 15 Nov 2022 15:25:24 +1300</lastBuildDate><atom:link href="https://dave2.github.io/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Hexagon Update: 15 Nov 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-11-15/</link><pubDate>Tue, 15 Nov 2022 15:25:24 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-11-15/</guid><description>&lt;p>Well hi there folks. Not sure anyone is reading this, but that&amp;rsquo;s just
+fine, it&amp;rsquo;s more for my mental well-being than anything else. Let&amp;rsquo;s
+dive into the state of things.&lt;/p>
+&lt;h2 id="inventory">Inventory&lt;/h2>
+&lt;p>Most of the last week has been on nothing but Inventory and getting
+both the basic UI, data, and storage sorted out.&lt;/p>
+&lt;p>Unexpectedly, building the UI still goes somewhat okay. There&amp;rsquo;s still
+a huge problem in my head between where the UI is doing things, and
+whether things like validation of what can be placed where live in
+the UI (where, actually, they get called a lot) or somewhere else.&lt;/p>
+&lt;p>At the moment there is some uncomfortable duplication. What should
+really be taking place is the Inventory UI is a view of the data,
+not populated with it&amp;rsquo;s own set of the items in every slot. However,
+from the way the UI is structure, it is &lt;em>much&lt;/em> easier to poke items
+into a slot in the UI and have the UI render that, than tell the
+slot in the UI how to find out what it&amp;rsquo;s contents might be.&lt;/p>
+&lt;p>It&amp;rsquo;s also getting pretty deep in layers of callbacks to deal with
+changes. This is where the way it&amp;rsquo;s being implemented is starting
+to break down.&lt;/p>
+&lt;p>The reason is we&amp;rsquo;re using Godot&amp;rsquo;s built-in UI features and these
+mostly fire signals at our top-level elements. In the inventory case
+there is an invisible button on top of every slot which gets these
+events.&lt;/p>
+&lt;p>Now that makes it easy to capture events - no math needed to convert
+positional information to identify the slot picked - but we have to
+then look more at callbacks to make it come together with state
+the individual button isn&amp;rsquo;t holding.&lt;/p>
+&lt;p>Anyway, some gamedev will be screaming at the page now going &amp;ldquo;just
+do it &amp;lt;this way&amp;gt;&amp;rdquo; and they&amp;rsquo;ll be right. But I&amp;rsquo;m feeling out all of
+this from first principles right?&lt;/p>
+&lt;p>We&amp;rsquo;re already on a major rewrite of how inventory is stored, so
+maybe I should finish that before starting a new rewrite?&lt;/p>
+&lt;p>That current rewrite was triggered by a deeply flawed decision to
+have separate variables holding equipped from just stored items.
+This resulted in doubling all the functions, and I used strings for
+equipment slots and ints for normal storage. And then I mixed up
+the slots an item may be stashed in with slots we actually have.&lt;/p>
+&lt;p>That last point is based on items that either span multiple slots
+or can be used in multiple slots. So we have a &lt;code>TWOHAND&lt;/code> equip
+slot on items .. but that doesn&amp;rsquo;t exist in the inventory. Building
+all the data structures on what items were using as slots was all
+sorts of wrong, but I didn&amp;rsquo;t see that until quite late.&lt;/p>
+&lt;p>So it&amp;rsquo;s all been rewritten, equipment slots are now just low-numbered
+inventory slots, and we special case them when testing for accepting
+or stashing an item.&lt;/p>
+&lt;p>The good news is, because I&amp;rsquo;m just using Godot&amp;rsquo;s internal drag and
+drop I have drag and drop working, you can move items around the
+inventory, and drag them in and out of equipment slots, and it
+even tests if this is an acceptable move. Hooray.&lt;/p>
+&lt;p>After I do another rewrite I need to add support for stacking and
+unstacking items. The item class already has stack properties, and
+the UI already has support for showing stacked items, but none
+of this is actually wired up. And once stacking is done then it&amp;rsquo;s
+on to looting UI and shop UI!&lt;/p>
+&lt;p>This stacking thing shouldn&amp;rsquo;t be too hard, he said having realised
+actually it is hard because items don&amp;rsquo;t have a concept of equality.
+Huh.&lt;/p></description></item><item><title>Hexagon Update: 10 Nov 2022</title><link>https://dave2.github.io/post/hexagon-update-2022-11-10/</link><pubDate>Thu, 10 Nov 2022 12:43:00 +1300</pubDate><guid>https://dave2.github.io/post/hexagon-update-2022-11-10/</guid><description>&lt;h2 id="world-view-and-gen">World View and Gen&lt;/h2>
 &lt;p>The world view needed one more piece of polish before I really need to
 get on with some of the other systems in the game. While I do want
 to enrich the world generation with villages and more POI, that&amp;rsquo;s something
